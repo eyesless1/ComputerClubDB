@@ -30,6 +30,13 @@
     is_available: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
+    },
+    computer_group_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'computer_groups',
+        key: 'id'
+      }
     }
   });
   return Computer;
