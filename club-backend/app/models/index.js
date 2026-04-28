@@ -13,34 +13,18 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-// Импорт моделей для компьютерного клуба
+// Импорт моделей
 db.ComputerGroup = require("./computer_group.model.js")(sequelize, Sequelize);
 db.Computer = require("./computer.model.js")(sequelize, Sequelize);
 db.Client = require("./client.model.js")(sequelize, Sequelize);
 db.GameSession = require("./game_session.model.js")(sequelize, Sequelize);
-db.Service = require("./service.model.js")(sequelize, Sequelize);
-db.Order = require("./order.model.js")(sequelize, Sequelize);
+db.Product = require("./product.model.js")(sequelize, Sequelize);
+db.Pricelist = require("./pricelist.model.js")(sequelize, Sequelize);
+db.PricelistProduct = require("./pricelist_product.model.js")(sequelize, Sequelize);
+db.Purchase = require("./purchase.model.js")(sequelize, Sequelize);
+db.PurchaseProduct = require("./purchase_product.model.js")(sequelize, Sequelize);
 
-// ========== Связи между моделями ==========
-
-// ComputerGroup -> Computer (один ко многим)
-db.ComputerGroup.hasMany(db.Computer);
-db.Computer.belongsTo(db.ComputerGroup);
-
-// Client -> GameSession
-db.Client.hasMany(db.GameSession);
-db.GameSession.belongsTo(db.Client);
-
-// Computer -> GameSession
-db.Computer.hasMany(db.GameSession);
-db.GameSession.belongsTo(db.Computer);
-
-// GameSession -> Order
-db.GameSession.hasMany(db.Order);
-db.Order.belongsTo(db.GameSession);
-
-// Service -> Order
-db.Service.hasMany(db.Order);
-db.Order.belongsTo(db.Service);
+// Вызов файла связей
+require("./references.model.js")(db);
 
 module.exports = db;

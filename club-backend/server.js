@@ -129,3 +129,64 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`🚀 Сервер компьютерного клуба запущен на порту ${PORT}`);
 });
+
+// ========== API для продуктов (услуг) ==========
+app.get("/api/products", async (req, res) => {
+  const products = await db.Product.findAll();
+  res.json(products);
+});
+
+app.post("/api/products", async (req, res) => {
+  const product = await db.Product.create(req.body);
+  res.json(product);
+});
+
+// ========== API для прайс-листов ==========
+app.get("/api/pricelists", async (req, res) => {
+  const pricelists = await db.Pricelist.findAll();
+  res.json(pricelists);
+});
+
+app.post("/api/pricelists", async (req, res) => {
+  const pricelist = await db.Pricelist.create(req.body);
+  res.json(pricelist);
+});
+
+// ========== API для продаж (покупок) ==========
+app.get("/api/purchases", async (req, res) => {
+  const purchases = await db.Purchase.findAll({
+    include: [db.Client, db.GameSession]
+  });
+  res.json(purchases);
+});
+
+app.post("/api/purchases", async (req, res) => {
+  const { client_id, game_session_id, items } = req.body;
+  
+  let total = 0;
+  const purchase = await db.Purchase.create({
+    client_id,
+    game_session_id,
+    purchase_date: new Date(),
+    status: 'completed'
+  });
+  
+  for (const item of items) {
+    const product = await db.Product.findByPk(item.product_id);
+    const itemTotal = product.price * item.quantity;
+    total += itemTotal;
+    
+    await db.PurchaseProduct.create({
+      purchase_id: purchase.id,
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: product.price,
+      total_price: itemTotal
+    });
+  }
+  
+  purchase.total_amount = total;
+  await purchase.save();
+  
+  res.json(purchase);
+});
